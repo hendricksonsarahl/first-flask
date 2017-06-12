@@ -5,6 +5,6 @@ app.config['DEBUG'] = True
 
 @app.route("/")
 def index():
-    return "Hello World"
+    return "Hello, World! This is my first web app built using Flask!"
 
 app.run()
