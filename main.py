@@ -1,41 +1,32 @@
 from flask import Flask, request, redirect
 import cgi
+import os
+import jinja2
+
+template_dir = os.path.join(os.path.dirname(__file__), 'templates')
+jinja_env = jinja2.Environment(loader = jinja2.FileSystemLoader(template_dir), autoescape=True)
 
 app = Flask(__name__)
 app.config['DEBUG'] = True
 
-# Basic form example
-
-form = """
-<!doctype html>
-<html>
-    <body>
-        <form action="/hello" method="post">
-            <label for="first_name">First Name:</label>
-            <input id="first_name" type="text" name="first_name" />
-            <input type="submit" />
-        </form>
-    </body>
-</html>
-"""
-
 @app.route("/")
 def index():
-    return form
+    template = jinja_env.get_template('hello_form.html')
+    return template.render()
 
 @app.route("/hello", methods=['POST'])
 def hello():
     first_name = request.form['first_name']
-    return '<h1>Hello, ' + cgi.escape(first_name) + '</h1>'
+    template = jinja_env.get_template('hello_greeting.html')
+    return template.render(name=first_name)
 
-# Form example with input validation
 
 time_form = """
     <style>
         .error {{ color: red; }}
     </style>
     <h1>Validate Time</h1>
-    <form method= 'POST'>
+    <form method='POST'>
         <label>Hours (24-hour format)
             <input name="hours" type="text" value='{hours}' />
         </label>
@@ -44,13 +35,15 @@ time_form = """
             <input name="minutes" type="text" value='{minutes}' />
         </label>
         <p class="error">{minutes_error}</p>
-            <input type="submit" value="Validate" />
+        <input type="submit" value="Validate" />
     </form>
     """
 
 @app.route('/validate-time')
 def display_time_form():
-    return time_form.format(hours='', hours_error='', minutes='', minutes_error='')
+    return time_form.format(hours='', hours_error='',
+        minutes='', minutes_error='')
+
 
 def is_integer(num):
     try:
@@ -58,9 +51,11 @@ def is_integer(num):
         return True
     except ValueError:
         return False
+        
 
 @app.route('/validate-time', methods=['POST'])
 def validate_time():
+
     hours = request.form['hours']
     minutes = request.form['minutes']
 
@@ -79,7 +74,6 @@ def validate_time():
     if not is_integer(minutes):
         minutes_error = 'Not a valid integer'
         minutes = ''
-
     else:
         minutes = int(minutes)
         if minutes > 59 or minutes < 0:
@@ -90,10 +84,11 @@ def validate_time():
         time = str(hours) + ':' + str(minutes)
         return redirect('/valid-time?time={0}'.format(time))
     else:
-        return time_form.format(hours_error=hours_error, 
-        minutes_error=minutes_error, 
-        hours=hours, 
-        minutes=minutes)
+        return time_form.format(hours_error=hours_error,
+            minutes_error=minutes_error,
+            hours=hours,
+            minutes=minutes)
+
 
 @app.route('/valid-time')
 def valid_time():
