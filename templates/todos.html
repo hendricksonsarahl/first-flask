@@ -1,0 +1,33 @@
+<!doctype html>
+<html>
+    <head>
+        <title>TODOs</title>
+    </head>
+<body>
+    <h1>TODO's</h1>
+    <form method='post'>
+        <label>
+            New Task:
+            <input type="text" name ='task' />
+        </label>
+        <input type="submit" value='Add Task' />
+    </form>
+
+    <hr />
+
+<!--If list is empty, display message-->
+    {% if tasks|length == 0 %}
+        <p>The task list is empty, yay!</p>
+
+<!--If list has items in it, display the items in a bulleted list below-->
+        {% else %}
+
+            <ul>
+                {% for task in tasks %}
+                <li>{{task}}</li>
+                {% endfor %}
+            </ul>
+
+    {% endif %}
+</body>
+</html>
